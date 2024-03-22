@@ -1,3 +1,11 @@
+# arcgisutils (development version)
+
+- `arc_base_req()` gains two new arguments `path` and `query` which allows you to add query parameters and paths to the generated base request
+- `arc_self_meta()` is a new function to provide access to the [`/self`](https://developers.arcgis.com/rest/users-groups-and-items/portal-self.htm) endpoint. Closes [#32](https://github.com/R-ArcGIS/arcgisutils/issues/32)
+- Null geometries are parsed into empty Geometry Collections using `sf::st_geometrycollection()` Fixed [#168](https://github.com/R-ArcGIS/arcgislayers/issues/168)
+- When Esri JSON contains 0 features, `parse_esri_json()` will create an empty `data.frame` with the fields that are returned with the appropriate R type.
+
+
 # arcgisutils 0.2.0
 
 - `parse_esri_json()` will return an empty `data.frame` in the presence of empty results an error. If an error is present, the error is reported
@@ -11,7 +19,7 @@
 - `arc_base_req()` is introduce creating a standardized way to making base httr2 request objects. 
   - <https://github.com/R-ArcGIS/arcgisutils/pull/19>
 - httr2 must be >= 1.0.0 now
-* New function `arc_agent()` is added to set a package sepcific user agent 
+* New function `arc_agent()` is added to set a package specific user agent 
 * `fetch_layer_metadata()` now puts `f=json` in the url instead of the request body
   - accepts `NULL` tokens 
   - uses `req_auth_bearer_token()` to include token in header

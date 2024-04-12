@@ -23,7 +23,6 @@
 #' head(names(meta))
 #' @returns returns a list object
 fetch_layer_metadata <- function(url, token = NULL, call = rlang::caller_env()) {
-
   req <- arc_base_req(url, token, error_call = call)
 
   # add f=json to the url for querying
@@ -51,57 +50,65 @@ fetch_layer_metadata <- function(url, token = NULL, call = rlang::caller_env()) 
 #' This function checks for the existence of an error. If an error is found,
 #' the contents of the error message are bubbled up.
 #'
-#' @param response a [`httr2::response`] object.
-#' @param error_call default [`caller_env()`]. The environment from which
+#' @param response for `detect_errors()`, a list typically from `RcppSimdJson::fparse(httr2::resp_body_string(resp))`. For `catch_error()`, the string from `httr2::resp_body_string(resp)`.
+#' @param error_call default [`rlang::caller_env()`]. The environment from which
 #'  to throw the error from.
 #' @returns
 #'
 #' Nothing. Used for it's side effect. If an error code is encountered in the
 #' response an error is thrown with the error code and the error message.
+#' @details
 #' @export
 #' @family requests
 #' @examples
 #' \dontrun{
-#'   response <- list(
-#'     error = list(
-#'       code = 400L,
-#'       message = "Unable to generate token.",
-#'       details = "Invalid username or password."
-#'     )
+#' response <- list(
+#'   error = list(
+#'     code = 400L,
+#'     message = "Unable to generate token.",
+#'     details = "Invalid username or password."
 #'   )
+#' )
 #'
-#'   detect_errors(response)
+#' detect_errors(response)
 #' }
-detect_errors <- function(response, error_call = caller_env()) {
+detect_errors <- function(response, error_call = rlang::caller_env()) {
+  e_msg <- capture_message(response)
 
-  e <- response[["error"]]
-
-  if (!is.null(e)) {
-
-    err_msg <- strwrap(
-      paste0("  Error ", e$messageCode, ": ", e$message),
-      prefix = "    ",
-      initial = ""
-    )
-
-    full_msg <- c(
-      "Status code: ",
-      response[["error"]][["code"]],
-      "\n",
-      paste0(err_msg, collapse = "\n")
-    )
-
-    cli::cli_abort(
-      paste0(full_msg, collapse = ""),
-      call = error_call
-    )
+  if (is.null(e_msg)) {
+    return(invisible(NULL))
   }
+
+  rlang::abort(
+    e_msg,
+    call = error_call
+  )
 }
 
 #' @keywords internal
 #' @noRd
 report_errors <- function(response, error_call = rlang::caller_env()) {
-  e <- response[["error"]]
+  e_msg <- capture_message(response)
+
+  if (is.null(e_msg)) {
+    return(invisible(NULL))
+  }
+
+  rlang::warn(
+    e_msg,
+    call = error_call
+  )
+}
+
+#' Capture the message from a parsed error JSON object
+#' This will print the error status code, message and details if present
+#' The JSON must have already been parsed. It might make more sense to
+#' try and parse the JSON in a safe way—e.g. use tryCatch
+#' @keywords internal
+#' @noRd
+capture_message <- function(error) {
+  e <- error[["error"]]
+
   if (!is.null(e)) {
     err_msg <- strwrap(
       paste0("  Error", e$messageCode, ": ", e$message),
@@ -111,16 +118,31 @@ report_errors <- function(response, error_call = rlang::caller_env()) {
 
     full_msg <- c(
       "Status code: ",
-      response[["error"]][["code"]],
+      e[["code"]],
       "\n",
       paste0(err_msg, collapse = "\n")
     )
 
-    rlang::warn(
-      paste0(full_msg, collapse = ""),
-      call = error_call
-    )
+    c(paste0(full_msg, collapse = ""), "i" = e$details)
+  } else {
+    invisible(NULL)
   }
+}
+
+#' Catch error will parse the json for you
+#' This is so that it can be done safely
+#'
+#' @rdname detect_errors
+#' @export
+catch_error <- function(response, error_call = rlang::caller_env()) {
+  if (rlang::is_empty(response)) {
+    return(invisible(NULL))
+  }
+  check_string(response, allow_null = TRUE, allow_na = FALSE, call = error_call)
+
+  rlang::catch_cnd(
+    report_errors(RcppSimdJson::fparse(response), error_call = error_call)
+  )
 }
 
 #' Set user-agent for arcgisutils
@@ -138,6 +160,3 @@ arc_agent <- function(req) {
   ver <- utils::packageVersion("arcgisutils")
   httr2::req_user_agent(req, paste0("arcgisutils v", ver))
 }
-
-
-

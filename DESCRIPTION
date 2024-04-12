@@ -33,6 +33,9 @@ Imports:
     utils
 Suggests: 
     arcgisbinding,
+    collapse (>= 2.0.0),
+    data.table,
+    vctrs,
     testthat (>= 3.0.0)
 LinkingTo: 
     Rcpp
@@ -41,3 +44,5 @@ Encoding: UTF-8
 Language: en
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
+Config/rextendr/version: 0.3.1.9000
+SystemRequirements: Cargo (Rust's package manager), rustc

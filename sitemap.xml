@@ -11,6 +11,9 @@
 <url><loc>/reference/as_esri_geometry.html</loc></url>
 <url><loc>/reference/as_extent.html</loc></url>
 <url><loc>/reference/auth.html</loc></url>
+<url><loc>/reference/check_esri_url.html</loc></url>
+<url><loc>/reference/check_string.html</loc></url>
+<url><loc>/reference/check_url.html</loc></url>
 <url><loc>/reference/dates.html</loc></url>
 <url><loc>/reference/detect_errors.html</loc></url>
 <url><loc>/reference/determine_dims.html</loc></url>
@@ -20,7 +23,9 @@
 <url><loc>/reference/fetch_layer_metadata.html</loc></url>
 <url><loc>/reference/field_mapping.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/is_esri_url.html</loc></url>
 <url><loc>/reference/layer_json.html</loc></url>
+<url><loc>/reference/list_esri_url.html</loc></url>
 <url><loc>/reference/parse_esri_json.html</loc></url>
 <url><loc>/reference/rbind_results.html</loc></url>
 <url><loc>/reference/token.html</loc></url>

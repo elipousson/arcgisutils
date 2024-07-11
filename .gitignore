@@ -1,2 +1,9 @@
+configure~
+CRAN-SUBMISSION
+autom4te.cache
+config.log
 .Rproj.user
 docs/
+src/.cargo*
+src/vendor
+src/rust/vendor
